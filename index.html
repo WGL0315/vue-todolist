@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>todomvc-app-template</title>
+		<link rel="stylesheet" href="node_modules/todomvc-common/base.css">
+		<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+		<link rel="stylesheet" href="css/app.css">
+	</head>
+	<body>
+		<section class="todoapp" id="todoapp">
+			<header class="header">
+				<h1>todos</h1>
+				<input @keyup.enter="addItem" class="new-todo" placeholder="What needs to be done?" v-app-focus>
+			</header>
+
+			<!-- template渲染后会消失。这里需要用v-if，而不是v-show(template渲染后仍存在) -->
+			<template v-if="items.length">
+				<!-- 无待办时隐藏、有待办事项才显示 -->
+				<section class="main">
+					<input v-model="toggleAll" id="toggle-all" class="toggle-all" type="checkbox">
+					<label for="toggle-all">Mark all as complete</label>
+
+					<!-- 待办数据列表 -->
+					<ul class="todo-list">
+						<!-- 三种状态，未完成(没有样式)、已完成(.commpleted)、编辑中(.editing) -->
+						<!-- 1.v-for迭代；2.:class={key为class样式名,value为获取的数据true或false} -->
+						<!-- currentItem用于判断是否进入.editing状态 -->
+						<li v-for="(item, index) in filterItems" :class="{completed: item.completed, editing:item === currentItem}">
+							<div class="view">
+								<!-- v-model绑定状态值是否选中 -->
+								<input class="toggle" type="checkbox" v-model="item.completed">
+								<!-- {{ content }}显示内容，双击进入编辑状态 -->
+								<label @dblclick="toEdit(item)">{{ item.content }}</label>
+
+								<!-- 删除按钮 :value绑定任务项的id;点击后，通过此id进行删除 -->
+								<button @click="removeItem(index)" :value="item.id" class="destroy"></button>
+							</div>
+							<!-- 显示当前点击的任务内容，单向绑定输入框的值即可 -->
+							<!-- 完成编辑：enter键或者失去焦点时触发 -->
+							<input class="edit" :value="item.content"
+								@keyup.esc="cancelEdit"
+								@keyup.enter="finishEdit(item, index, $event)"
+								@blur="finishEdit(item, index, $event)"
+								v-todo-focus="item === currentItem">
+						</li>
+					</ul>
+				</section>
+				<!-- 无待办时隐藏、有待办事项才显示 -->
+				<footer class="footer">
+					<!-- 三元表达式 A?B:C 。无待办事项时，不加's' -->
+					<span class="todo-count"><strong>{{ remaining }}</strong> item{{ (remaining == 1)||(remaining == 0) ? '': 's' }} left</span>
+
+					<!-- implement:实施、工具 -->
+					<ul class="filters">
+						<li>
+							<a href="#/" :class="{selected: filterStatus === 'all'}">All</a>
+						</li>
+						<li>
+							<a href="#/active" :class="{selected: filterStatus === 'active'}">Active</a>
+						</li>
+						<li>
+							<a href="#/completed" :class="{selected: filterStatus === 'completed'}">Completed</a>
+						</li>
+					</ul>
+
+					<!-- 当所有待办为“未完成状态”，这里应该隐藏 -->
+					<button @click="removeCompleted" v-show="items.length > remaining" class="clear-completed">Clear completed</button>
+				</footer>
+			</template>
+		</section>
+		<footer class="info">
+			<p>请在输入框输入"新任务"</p>
+			<p>按“回车键”确认</p>
+			<p>按"esc键"可退出编辑状态</p>
+			<p>双击编辑任务项</p>
+			<p>点击"x"可删除当前任务项</p>
+			<p>Created by <a href="javascript: void(0)">wgl</a></p>
+			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+			<p><a href="javascript: void(0)">查看源码</a></p>
+		</footer>
+
+		<script src="node_modules/todomvc-common/base.js"></script>
+		<!-- vue.js需要在app.js前面引入 -->
+		<script src="./node_modules/vue/dist/vue.js" type="text/javascript"></script>
+		<script src="js/app.js"></script>
+	</body>
+</html>
